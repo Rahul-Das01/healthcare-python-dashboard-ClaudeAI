@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Healthcare Analytics – Executive Dashboard</title>
+<style>
+:root{--navy:#0b2540;--teal:#0e9aa7;--teal2:#7fd1d8;--bg:#f2f5f9;--card:#fff;--ink:#16263a;--mute:#66768a;--line:#e3e9f0;--warn:#e8743b;--hi:#0b2540}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+header{background:linear-gradient(120deg,#0b2540,#134e6b);color:#fff;padding:26px 32px}
+header h1{margin:0;font-size:24px;font-weight:600}header p{margin:6px 0 0;color:#c8dbe8;max-width:760px}
+.period{display:inline-block;margin-top:10px;background:rgba(255,255,255,.14);padding:3px 12px;border-radius:20px;font-size:12px}
+.filters{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:10px 32px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end}
+.filters label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);display:flex;flex-direction:column;gap:3px}
+select,button{font:inherit;padding:6px 10px;border:1px solid #cdd7e2;border-radius:6px;background:#fff;color:var(--ink)}
+button{background:var(--navy);color:#fff;border-color:var(--navy);cursor:pointer}button:hover{background:#134e6b}
+main{padding:22px 32px;max-width:1320px;margin:auto}
+h2{font-size:16px;margin:30px 0 12px;color:var(--navy);text-transform:uppercase;letter-spacing:.06em}
+.grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(4,1fr)}.c2{grid-template-columns:repeat(2,1fr)}.c3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;box-shadow:0 1px 3px rgba(11,37,64,.05)}
+.kpi .l{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute)}.kpi .v{font-size:28px;font-weight:600;color:var(--navy);margin-top:4px}.kpi .s{font-size:12px;color:var(--mute)}
+.kpi.focus{border-color:var(--teal);background:#f0fafb}.kpi.focus .v{font-size:18px;line-height:1.4}
+.sum{border-left:4px solid var(--teal)}.sum b{display:block;font-size:20px;color:var(--navy)}.sum span{color:var(--mute)}
+.card h3{margin:0 0 2px;font-size:15px;color:var(--navy)}.card .find{margin:0 0 10px;color:var(--mute);font-size:13px}
+svg{width:100%;height:auto;display:block}svg text{font:11px "Segoe UI",system-ui,sans-serif;fill:#66768a}
+.hit{cursor:pointer;transition:opacity .15s}.hit:hover{opacity:.8}
+.take{border-top:4px solid var(--navy)}.take h3{font-size:15px;margin-bottom:8px}.take p{margin:6px 0;font-size:13px}.take p b{color:var(--teal)}
+.big{font-size:34px;font-weight:600;color:var(--navy)}
+#tip{position:fixed;pointer-events:none;background:var(--navy);color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;opacity:0;transition:opacity .1s;z-index:9;max-width:240px}
+.note{font-size:11px;color:var(--mute);margin-top:6px}
+@media(max-width:980px){.kpis,.c3{grid-template-columns:repeat(2,1fr)}.c2{grid-template-columns:1fr}}
+@media(max-width:560px){.kpis,.c3{grid-template-columns:1fr}main,header,.filters{padding-left:16px;padding-right:16px}}
+</style></head><body>
+<header><h1>Healthcare Network Analytics – Executive Dashboard</h1>
+<p>Patient demand, billing and emergency activity across the network: what leadership needs to know.</p>
+<span class="period">Reporting period: May 2019 – May 2024</span></header>
+
+<div class="filters">
+<label>Medical condition<select id="fc"></select></label>
+<label>Insurance provider<select id="fi"></select></label>
+<label>Admission year (cost trend)<select id="fy"></select></label>
+<button id="reset">Reset filters</button>
+</div>
+
+<main>
+<section class="grid kpis" id="kpis"></section>
+
+<h2>Executive Summary</h2>
+<section class="grid c3" id="sum"></section>
+
+<h2>Key Business Insights</h2>
+<section class="grid c2">
+<div class="card"><h3>Arthritis is the most common condition, but demand is evenly spread</h3><p class="find">Arthritis (9,218) leads; Asthma is lowest (9,095), a gap of only 1.3%. Click a bar to filter.</p><div id="ch1"></div></div>
+<div class="card"><h3>Patients are mid-life on average, from teens to late 80s</h3><p class="find">Average age is 51.5; the middle half of patients are aged 35–68.</p><div id="ch2"></div></div>
+<div class="card" style="grid-column:1/-1"><h3>Average billing moves month to month without a sustained climb</h3><p class="find">Monthly average billing swings roughly between 24.5K and 26.8K around the overall 25.6K average; May 2024 (25,465) ended 1.7% below May 2019 (25,897).</p><div id="ch3"></div><div class="note">Monthly values other than the first and last five months are read from the analysis chart and are approximate.</div></div>
+<div class="card"><h3>Age does not drive cost</h3><p class="find">Patients aged 60+ average 25,564 per admission versus 25,595 overall, a difference of just 31 (0.1%).</p><div id="ch4"></div></div>
+<div class="card"><h3>Cigna covers the most patients, yet insurers are almost equal</h3><p class="find">Cigna (11,139) leads, Aetna is lowest (10,822); every provider holds 19.7%–20.3%. Click a slice to filter.</p><div id="ch5"></div></div>
+</section>
+
+<h2>Ad-hoc Insights</h2>
+<section class="grid c3">
+<div class="card" style="grid-column:span 2"><h3>Emergency admissions are steady all year, with peaks in July and January</h3><p class="find">18,102 emergency admissions across the period; monthly totals range from 1,452 (February) to 1,573 (July), grouped by calendar month.</p><div id="ch6"></div></div>
+<div class="card"><h3>High-cost patients for finance review</h3><p class="find">Patients billed above the 90th percentile.</p><div class="big">5,497</div><div id="ch7"></div></div>
+<div class="card" style="grid-column:1/-1"><h3>One in three emergency patients has abnormal test results</h3><p class="find">6,038 of 18,102 emergency admissions (33.4%) are flagged for priority review.</p><div id="ch8"></div></div>
+</section>
+
+<h2>Management Takeaways</h2>
+<section class="grid c3" id="take"></section>
+</main>
+<div id="tip"></div>
+
+<script>
+const COND={Arthritis:9218,Diabetes:9216,Hypertension:9151,Obesity:9146,Cancer:9140,Asthma:9095};
+const INS={Cigna:11139,Medicare:11039,UnitedHealthcare:11014,"Blue Cross":10952,Aetna:10822};
+const EMG=[1547,1452,1528,1473,1533,1483,1573,1533,1500,1490,1462,1528];
+const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MON={"2019-05":25897,"2019-06":26324,"2019-07":25929,"2019-08":25457,"2019-09":24916,"2019-10":26000,"2019-11":25900,"2019-12":25690,"2020-01":25860,"2020-02":25340,"2020-03":25540,"2020-04":25240,"2020-05":25600,"2020-06":26040,"2020-07":24850,"2020-08":25500,"2020-09":24880,"2020-10":25050,"2020-11":25340,"2020-12":26200,"2021-01":25550,"2021-02":25630,"2021-03":26070,"2021-04":25770,"2021-05":25080,"2021-06":26090,"2021-07":25740,"2021-08":25540,"2021-09":25210,"2021-10":26750,"2021-11":25670,"2021-12":25010,"2022-01":25540,"2022-02":24860,"2022-03":25850,"2022-04":25700,"2022-05":25600,"2022-06":25300,"2022-07":25860,"2022-08":25140,"2022-09":25720,"2022-10":25800,"2022-11":26330,"2022-12":25280,"2023-01":26030,"2023-02":25510,"2023-03":24530,"2023-04":25570,"2023-05":24820,"2023-06":26050,"2023-07":25180,"2023-08":25620,"2023-09":25700,"2023-10":26710,"2023-11":25590,"2023-12":26100,"2024-01":25837,"2024-02":25704,"2024-03":25311,"2024-04":24930,"2024-05":25465};
+const N=54966,AVG=25594.54,SEN=25563.59,EMGT=EMG.reduce((a,b)=>a+b,0),ABN=6038,HIGH=5497;
+const S={c:"",i:"",y:""};
+const $=id=>document.getElementById(id),n0=v=>Math.round(v).toLocaleString("en-US"),pct=(v,t)=>(v/t*100).toFixed(1)+"%";
+const big=v=>v>=1e9?(v/1e9).toFixed(2)+"B":v>=1e6?(v/1e6).toFixed(1)+"M":v>=1e3?(v/1e3).toFixed(1)+"K":""+v;
+const T=t=>' data-t="'+t+'"';
+
+function fill(id,opts,all){$(id).innerHTML='<option value="">'+all+'</option>'+opts.map(o=>'<option>'+o+'</option>').join("")}
+fill("fc",Object.keys(COND),"All conditions");fill("fi",Object.keys(INS),"All providers");fill("fy",[2019,2020,2021,2022,2023,2024],"All years");
+
+function kpis(){
+ const cs=S.c?`${S.c}: ${n0(COND[S.c])} patients (${pct(COND[S.c],N)})`:"",is=S.i?`${S.i}: ${n0(INS[S.i])} patients (${pct(INS[S.i],N)})`:"";
+ const foc=(cs||is)?[cs,is].filter(Boolean).join("<br>"):"All conditions and providers";
+ const k=[["Total Admissions",n0(N),"Records across the network"],["Total Billing",big(AVG*N),"Sum of all billing"],["Average Billing",n0(AVG),"Per admission"],["Average Patient Age",(51.5).toFixed(1),"Range 13–89"],
+ ["Emergency Admissions",n0(EMGT),pct(EMGT,N)+" of all admissions"],["Abnormal Emergency Cases",n0(ABN),pct(ABN,EMGT)+" of emergency admissions"],["High-Cost Patients",n0(HIGH),"Top 10% by billing"]];
+ $("kpis").innerHTML=k.map(x=>`<div class="card kpi"><div class="l">${x[0]}</div><div class="v">${x[1]}</div><div class="s">${x[2]}</div></div>`).join("")+`<div class="card kpi focus"><div class="l">Current selection</div><div class="v">${foc}</div></div>`;
+}
+const SUM=[["Balanced demand","Six conditions each account for 16.5%–16.8% of patients; Arthritis (9,218) and Diabetes (9,216) lead."],
+["Stable payer mix","Five insurers each cover about one in five patients; Cigna is largest at 20.3%."],
+["Steady billing","Average billing is 25.6K per admission with no sustained upward trend over 61 months."],
+["Age is not a cost driver","Patients aged 60+ average 25,564, in line with the overall 25,595."],
+["Emergency pressure is constant","18,102 emergency admissions; monthly volumes stay between 1,452 and 1,573."],
+["Review workload","6,038 emergency cases have abnormal results and 5,497 patients sit in the top billing decile."]];
+$("sum").innerHTML=SUM.map(s=>`<div class="card sum"><b>${s[0]}</b><span>${s[1]}</span></div>`).join("");
+const TK=[["Demand is evenly spread across conditions","Each of six conditions makes up about one-sixth of patients (9,095–9,218).","No single specialty dominates, so capacity is needed broadly rather than in one area.","Arthritis and Diabetes, the two largest groups."],
+["Emergency volume is a constant baseline","18,102 emergency admissions, 1,452–1,573 per calendar month.","Staffing can be planned on a stable level rather than sharp seasonal swings.","July (1,573) and January (1,547) are the busiest months."],
+["A third of emergency patients show abnormal results","6,038 emergency cases (33.4%) are flagged.","These cases carry the highest clinical priority and drive review workload.","Capacity of the review process for flagged cases."],
+["Costs are stable; high-cost cases are identifiable","Average billing is steady near 25.6K, and 5,497 patients exceed the 90th percentile.","Finance can focus review on a defined 10% group instead of monitoring everyone.","Spikes such as late 2021 and late 2023 in monthly averages."],
+["Age does not explain billing","60+ patients average 25,564 vs 25,595 overall.","Age-based cost assumptions are not supported by this data.","Other drivers behind high-cost cases."],
+["Payer exposure is not concentrated","Insurers hold 19.7%–20.3% each; Cigna 11,139 patients.","No single payer creates dependency risk.","Cigna and Medicare, the two largest."]];
+$("take").innerHTML=TK.map(t=>`<div class="card take"><h3>${t[0]}</h3><p><b>What is happening:</b> ${t[1]}</p><p><b>Why it matters:</b> ${t[2]}</p><p><b>Pay attention to:</b> ${t[3]}</p></div>`).join("");
+
+function bars(id,labels,vals,o){
+ o=o||{};const W=600,H=260,L=46,R=10,Tp=22,B=36,mx=Math.max(...vals)*1.12,bw=(W-L-R)/labels.length;
+ let s=`<svg viewBox="0 0 ${W} ${H}">`;
+ for(let k=0;k<=4;k++){const y=H-B-(H-B-Tp)*k/4;s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#e3e9f0"/><text x="${L-6}" y="${y+4}" text-anchor="end">${big(mx*k/4)}</text>`}
+ labels.forEach((l,i)=>{const h=(H-B-Tp)*vals[i]/mx,x=L+i*bw+bw*.15,y=H-B-h,on=!o.sel||o.sel===l;
+  s+=`<rect class="hit" x="${x}" y="${y}" width="${bw*.7}" height="${h}" rx="3" fill="${on?(o.color||"#0e9aa7"):"#cfe3e6"}"${T(l+": "+n0(vals[i]))} data-k="${o.key||""}:${l}"/><text x="${x+bw*.35}" y="${y-4}" text-anchor="middle" style="fill:#16263a">${n0(vals[i])}</text><text x="${x+bw*.35}" y="${H-B+15}" text-anchor="middle">${l}</text>`});
+ $(id).innerHTML=s+"</svg>";
+}
+function line(){
+ const e=Object.entries(MON).filter(([m])=>!S.y||m.startsWith(S.y));
+ const W=1000,H=280,L=50,R=14,Tp=16,B=34,lo=24200,hi=27000,X=i=>L+(W-L-R)*(e.length>1?i/(e.length-1):.5),Y=v=>H-B-(H-B-Tp)*(v-lo)/(hi-lo);
+ let s=`<svg viewBox="0 0 ${W} ${H}">`;
+ for(let v=24500;v<=26500;v+=500)s+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#e3e9f0"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${v.toLocaleString("en-US")}</text>`;
+ s+=`<line x1="${L}" x2="${W-R}" y1="${Y(AVG)}" y2="${Y(AVG)}" stroke="#e8743b" stroke-dasharray="5 4"/><text x="${W-R}" y="${Y(AVG)-5}" text-anchor="end" style="fill:#e8743b">Overall average 25,595</text>`;
+ s+=`<polyline fill="none" stroke="#0e9aa7" stroke-width="2" points="${e.map((d,i)=>X(i)+","+Y(d[1])).join(" ")}"/>`;
+ const st=e.length>24?6:1;
+ e.forEach((d,i)=>{const[y,m]=d[0].split("-");s+=`<circle class="hit" cx="${X(i)}" cy="${Y(d[1])}" r="5" fill="#0b2540"${T(MN[+m-1]+" "+y+": "+n0(d[1]))}/>`;
+  if(i%st===0)s+=`<text x="${X(i)}" y="${H-B+16}" text-anchor="middle">${MN[+m-1]} ${y}</text>`});
+ $("ch3").innerHTML=s+"</svg>";
+}
+function age(){
+ const W=600,H=150,L=20,R=20,X=a=>L+(W-L-R)*(a-13)/76;
+ let s=`<svg viewBox="0 0 ${W} ${H}"><line x1="${X(13)}" x2="${X(89)}" y1="70" y2="70" stroke="#cfe3e6" stroke-width="4"/>
+ <rect class="hit" x="${X(35)}" y="48" width="${X(68)-X(35)}" height="44" rx="4" fill="#0e9aa7"${T("Middle 50% of patients: age 35 to 68")}/>
+ <line x1="${X(52)}" x2="${X(52)}" y1="48" y2="92" stroke="#fff" stroke-width="3"/>
+ <circle class="hit" cx="${X(51.5)}" cy="70" r="6" fill="#e8743b"${T("Average age: 51.5")}/>`;
+ [[13,"Youngest 13"],[35,"25th pct 35"],[52,"Median 52"],[68,"75th pct 68"],[89,"Oldest 89"]].forEach((p,i)=>s+=`<text x="${X(p[0])}" y="${i%2?118:30}" text-anchor="middle">${p[1]}</text>`);
+ $("ch2").innerHTML=s+`<text x="${X(51.5)}" y="136" text-anchor="middle" style="fill:#e8743b">● Average 51.5</text></svg>`;
+}
+function cmp(){
+ const W=600,H=150,L=120,v=[["All patients",AVG,"#0e9aa7"],["Patients aged 60+",SEN,"#0b2540"]];
+ $("ch4").innerHTML=`<svg viewBox="0 0 ${W} ${H}">`+v.map((d,i)=>{const w=(W-L-70)*d[1]/AVG,y=25+i*55;return `<text x="${L-8}" y="${y+22}" text-anchor="end">${d[0]}</text><rect class="hit" x="${L}" y="${y}" width="${w}" height="34" rx="4" fill="${d[2]}"${T(d[0]+": "+n0(d[1])+" average billing")}/><text x="${L+w+6}" y="${y+22}" style="fill:#16263a">${n0(d[1])}</text>`}).join("")+"</svg>";
+}
+function donut(){
+ const e=Object.entries(INS),tot=N,cols=["#0b2540","#0e9aa7","#7fd1d8","#e8743b","#8aa4bd"],cx=130,cy=130,r=100,ri=60;let a=-Math.PI/2,s='<svg viewBox="0 0 520 260">';
+ e.forEach(([k,v],i)=>{const d=v/tot*2*Math.PI,a2=a+d,P=(R,t)=>[cx+R*Math.cos(t),cy+R*Math.sin(t)],[x1,y1]=P(r,a),[x2,y2]=P(r,a2),[x3,y3]=P(ri,a2),[x4,y4]=P(ri,a),lg=d>Math.PI?1:0;
+  s+=`<path class="hit" d="M${x1} ${y1}A${r} ${r} 0 ${lg} 1 ${x2} ${y2}L${x3} ${y3}A${ri} ${ri} 0 ${lg} 0 ${x4} ${y4}Z" fill="${cols[i]}" opacity="${!S.i||S.i===k?1:.3}" stroke="#fff" stroke-width="2"${T(k+": "+n0(v)+" patients ("+pct(v,tot)+")")} data-k="ins:${k}"/>`;
+  s+=`<rect x="270" y="${50+i*34}" width="12" height="12" rx="2" fill="${cols[i]}"/><text x="290" y="${61+i*34}" style="fill:#16263a">${k}</text><text x="510" y="${61+i*34}" text-anchor="end">${n0(v)} · ${pct(v,tot)}</text>`;a=a2});
+ const c=S.i?[S.i,pct(INS[S.i],tot)]:["54,966","patients"];
+ $("ch5").innerHTML=s+`<text x="${cx}" y="${cy}" text-anchor="middle" style="font-size:16px;font-weight:600;fill:#0b2540">${c[0]}</text><text x="${cx}" y="${cy+18}" text-anchor="middle">${c[1]}</text></svg>`;
+}
+function gauge(id,part,tot,label,col){
+ const W=600,w=part/tot*(W-20);
+ $(id).innerHTML=`<svg viewBox="0 0 ${W} 70"><rect x="10" y="12" width="${W-20}" height="26" rx="13" fill="#e3e9f0"/><rect class="hit" x="10" y="12" width="${w}" height="26" rx="13" fill="${col}"${T(label+": "+n0(part)+" of "+n0(tot)+" ("+pct(part,tot)+")")}/><text x="10" y="58">${label}: ${n0(part)} (${pct(part,tot)})</text></svg>`;
+}
+function draw(){
+ kpis();
+ bars("ch1",Object.keys(COND),Object.values(COND),{sel:S.c,key:"cond"});
+ age();line();cmp();donut();
+ bars("ch6",MN,EMG,{color:"#0b2540"});
+ gauge("ch7",HIGH,N,"Above 90th percentile","#e8743b");
+ gauge("ch8",ABN,EMGT,"Abnormal results","#e8743b");
+ $("fc").value=S.c;$("fi").value=S.i;$("fy").value=S.y;
+}
+$("fc").onchange=e=>{S.c=e.target.value;draw()};$("fi").onchange=e=>{S.i=e.target.value;draw()};$("fy").onchange=e=>{S.y=e.target.value;draw()};
+$("reset").onclick=()=>{S.c=S.i=S.y="";draw()};
+document.addEventListener("click",e=>{const t=e.target.closest("[data-k]");if(!t)return;const[k,v]=t.dataset.k.split(":");
+ if(k==="cond")S.c=S.c===v?"":v;else if(k==="ins")S.i=S.i===v?"":v;draw()});
+const tip=$("tip");
+document.addEventListener("mousemove",e=>{const t=e.target.closest("[data-t]");if(!t){tip.style.opacity=0;return}
+ tip.textContent=t.dataset.t;tip.style.opacity=1;tip.style.left=Math.min(e.clientX+14,innerWidth-250)+"px";tip.style.top=(e.clientY+14)+"px"});
+draw();
+</script></body></html>
